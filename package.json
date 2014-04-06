@@ -1,0 +1,25 @@
+{
+    "name": "scraper",
+    "description": "The online scratch card",
+    "version": "0.5.0",
+    "author": "Alex Chao (http://www.xiaocaoge.com)",
+    "homepage": "http://Alex1990.github.io/scraper",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/Alex1990/scraper.git"
+    },
+    "bugs": {
+        "url": "http://github.com/Alex1990.scraper/issues"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "http://github.com/Alex1990/scraper/blob/master/LICENSE"
+        }
+    ],
+    "devDependencies": {
+        "grunt": "~0.4.4",
+        "grunt-contrib-uglify": "~0.4.0",
+        "grunt-contrib-watch": "~0.4.0"
+    }
+}
