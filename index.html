@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>scraper demo</title>
+    <!--[if lte IE 8]>
+    <script src="flashcanvas.js"></script>
+    <![endif]-->
+    <style>
+        body {
+            font-family: Helvetica, Arial, Microsoft Yahei, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+        a {
+            text-decoration: none;
+            color: #099;
+        }
+        a:hover {
+            color: #f50;
+        }
+        .page {
+            width: 920px;
+            padding: 20px;
+            margin: 0 auto;
+            border-left: 3px solid #eee;
+            border-right: 3px solid #eee;
+        }
+        h1 {
+            font-size: 3em;
+            color: #f50;
+        }
+        h2 {
+            font-size: 2em;
+            padding: .25em 0;
+            border-bottom: 1px solid #eee;
+        }
+        h3 {
+            font-size: 1.5em;
+        }
+        pre {
+            padding: .75em;
+            background-color: #f8f8f8;
+            border: 1px solid #e4e4e4;
+        }
+        pre > code {
+            font-family: Consolas, Courier New, monospace;
+        }
+        .options li {
+            line-height: 2.5;
+        }
+        .card-wrap {
+            width: 200px;
+            background-color: #f50;
+            position: relative;
+        }
+        #result {
+            width: 200px;
+            height: 50px;
+            padding-top: 10px;
+            font-size: 24px;
+            text-align: center;
+            color: #333;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        #scraper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="slogan">
+            <h1>scraper</h1>
+            <span class="download"><a href=""></a></span>
+        </div>
+        <div class="docs">
+            <div class="usage">
+                <h2>Usage</h2>
+                <p>scraper兼容主流的桌面与移动端浏览器，包括IE6+, IE Mobile 10+，但是IE8及IE8以下支持canvas需要 <a href="http://flashcanvas.net/">FlashCanvas</a>，注意：explorercanvas不支持clip()方法，因此不能使用。</p>
+                <p>scraper的使用需要但不限于以下HTML</p>
+                <pre><code>&lt;div class="card-wrap"&gt;
+    &lt;div id="result"&gt;二等奖&lt;/div&gt;
+    &lt;canvas id="scraper" width="200px" height="60px"&gt;&lt;/canvas&gt;
+&lt;/div&gt;</code></pre>
+                <p>相应的CSS可以根据应用而写，本示例中为：</p>
+                <pre><code>.card-wrap {
+    width: 200px;
+    background-color: #f50;
+    position: relative;
+}
+#result {
+    width: 200px;
+    height: 50px;
+    padding-top: 10px;
+    font-size: 24px;
+    text-align: center;
+    color: #333;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+#scraper {
+    position: absolute;
+    top: 0;
+    left: 0;
+}</code></pre>
+                <p>scraper作为window的方法，可接受两个参数：第一个为canvas元素；第二个为配置对象：</p>
+                <pre><code>&lt;script src="scraper.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+scraper(document.getElementById('scraper'), {
+    prizeArea: [70, 25, 20, 20],
+    onscrape: function() {
+        alert('开始刮');
+        // 此处可以向后台发送ajax请求，返回要显示的结果
+    },
+    onresult: function() {
+        alert('显示结果');
+        // 此处用来处理显示结果后执行的代码
+    }
+});
+&lt;/script&gt;</code></pre>
+                <p><strong>DEMO如下</strong></p>
+                <div class="card-wrap">
+                    <div id="result">二等奖</div>
+                    <canvas id="scraper" width="200" height="60"></canvas>
+                </div>
+            </div>
+            <div class="options">
+                <h2>Config Options</h2>
+                <p>也许常用的配置项为：coverBgColor, prizeArea, onscrape, onresult 。</p>
+                <ul>
+                    <li><strong>coverText</strong> Array <em>(default:['', 0, 0])</em> - 数组三个值依次代表：覆盖层上显示文字、文字横坐标，文字纵坐标(从文字左下角至canvas左上角)</li>
+                    <li><strong>coverColor</strong> String <em>(default:'#333')</em> - 覆盖层文字颜色值</li>
+                    <li><strong>coverFont</strong> String <em>(default:'16px Arial, sans-serif')</em> - 覆盖层文字格式，与CSS的font属性值一样格式</li>
+                    <li><strong>coverBgColor</strong> String <em>(default:'#eee')</em> - 覆盖层背景色</li>
+                    <li><strong>pointRadius</strong> Integer <em>(default:10)</em> - 刮覆盖层时，触点半径值</li>
+                    <li><strong>prizeArea:</strong> array <em>(default:[0, 0, 100, 40])</em> - 结果(中奖)区域，矩形，参数依次为x, y, width, height</li>
+                    <li><strong>shape</strong> String <em>(default:null)</em> - 覆盖层形状图片路径</li>
+                    <li><strong>shapeX</strong> Integer <em>(default:0)</em> - 覆盖层形状图片水平坐标</li>
+                    <li><strong>shapeY</strong> Integer <em>(default:0)</em> - 覆盖层形状图片垂直坐标</li>
+                    <li><strong>shapeW</strong> Integer <em>(default:null)</em> - 覆盖层形状图片宽度</li>
+                    <li><strong>shapeH</strong> Integer <em>(default:null)</em> - 覆盖层形状图片高度</li>
+                    <li><strong>onscrape</strong> Function <em>(default:function() {})</em> - 开始刮(触摸或鼠标按下)覆盖层时回调函数</li>
+                    <li><strong>onresult</strong> Function <em>(default:function() {})</em> - 刮到(触点/鼠标移动到)结果(中奖)区域时触发的回调</li>
+                </ul>
+                <p><strong>Notes:</strong> onscrape 回调函数的上下文为options对象，即scraper的第二个参数，
+                    这样可以在此函数中更改options的任一属性，比如此函数里先向后台请求一个结果，
+                    然后根据后台返回结果动态更改prizeArea的值。</p>
+            </div>
+            <div class="issue">
+                <h2>Issues</h2>
+            </div>
+            <div class="license">
+                <h2>License</h2>
+                <p>Copyright (c) 2014 Alex Chao Licensed under the <a href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></p>
+            </div>
+        </div>
+    </div>
+    <script src="scraper.js"></script>
+    <script>
+    // 弹出框
+    var sendMsg = (function() {
+        var div = document.createElement('div'),
+            span = document.createElement('span');
+
+        return function sendMsg(o) {
+
+            span.innerHTML = o.constructor === Number ? 
+                            o : o.toString();
+
+            div.style.position = 'fixed';
+            div.style.top = '10px';
+            div.style.width = '100%';
+
+            span.style.display = 'block';
+            span.style.margin = '0 auto';
+            span.style.width = '400px';
+            span.style.maxWidth = '100%';
+            span.style.padding = '.5em';
+            span.style.backgroundColor = '#f50';
+            span.style.color = '#fff';
+
+            div.appendChild(span);
+            document.body.appendChild(div);
+
+            setTimeout(function() {
+                    div.parentNode && div.parentNode.removeChild(div);
+            }, 5000);
+        }
+    })();
+
+    var canvas = document.getElementById('scraper');
+
+    // IE6-8需要FlashCanvas
+    if (typeof FlashCanvas !== 'undefined') {
+        FlashCanvas.initElement(canvas);
+    }
+
+    // 配置scraper
+    scraper(canvas, {
+        prizeArea: [70, 25, 20, 20],
+        onscrape: function() {
+            sendMsg('开始刮');
+        },
+        onresult: function() {
+            sendMsg('显示结果');
+        }
+    });
+    </script>
+</body>
+</html>
