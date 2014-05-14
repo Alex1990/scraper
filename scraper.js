@@ -1,5 +1,5 @@
 /**
- * scraper - v0.5
+ * scraper - v0.9
  * The online form of scratch card
 
  * http://Alex1990.github.io/scraper
@@ -19,20 +19,29 @@
         var isIE11m = window.navigator.pointerEnabled ? true: false;
         var isIE10m = window.navigator.msPointerEnabled && !isIE11m ? true : false;
 
-        // 根据不同浏览器，以及是否触屏返回相应的事件
         var startEvt,
-            moveEvt;
+            moveEvt,
+            endEvt;
+        
+        // 根据不同浏览器，以及是否触屏返回相应的事件
         if (isTouch) {
             if (isIE11m) {
                 startEvt = 'pointerdown';
                 moveEvt = 'pointermove';
+                endEvt = 'pointerup';
             } else if (isIE10m) {
                 startEvt = 'MSPointerDown';
                 moveEvt = 'MSPointerMove';
+                endEvt = 'MSPointerUp';
             } else {
                 startEvt = 'touchstart';
                 moveEvt = 'touchmove';
+                endEvt = 'touchend';
             }
+        } else {
+            startEvt = 'mousedown';
+            moveEvt = 'mousemove';
+            endEvt = 'mouseup';
         }
 
         // 绑定事件函数
@@ -70,6 +79,7 @@
 
         // 默认配置
         var defaults = {
+            bindElement: document, // 事件代理对象
             coverText: ['', 0, 0], // 数组中三个值依次代表覆盖层显示文字、文字横坐标、文字纵坐标
             coverFont: '24px Arial, Microsoft Yahei, sans-serif', // 覆盖层文字格式
             coverColor: '#333', // 覆盖层文字颜色
@@ -115,38 +125,35 @@
             ctx.closePath();
         }
 
-        // 标记鼠标是否按下，即mousedown事件是否触发
-        var flag = false;
+        // 标记是否被刮过，用来避免opts.onscrape一直触发
+        var scraped = false;
 
-        // 绑定开始刮时的回调函数
-        if (isTouch) {
-            addEvent(canvas, startEvt, proxy(opts.onscrape, opts));
-        } else {
-            addEvent(canvas, 'mousedown',startScrape);
-            addEvent(canvas, 'mouseup', stopScrape);
-        }
+        // 绑定鼠标按下或手指触摸时的回调函数
+        addEvent(opts.bindElement, startEvt, startScrape);
 
-        // 鼠标按下回调函数
+        // 绑定鼠标松开或手指离开屏幕时的回调函数
+        addEvent(opts.bindElement, endEvt, stopScrape);
+
+        // 鼠标按下或手指触摸回调函数
         function startScrape(e) {
-            flag = true;
-            opts.onscrape.call(opts);
-            if (flag) {
-                addEvent(canvas, 'mousemove', scrapeCover);
+            if (!scraped) {
+                opts.onscrape.call(opts);
             }
+            addEvent(opts.bindElement, moveEvt, scrapeCover);
         }
 
-        // 鼠标松开回调函数，解绑鼠标滑动事件
+        // 鼠标松开或手指离开屏幕回调函数，解绑鼠标或手指滑动事件
         function stopScrape() {
-            if (flag) {
-                removeEvent(canvas, 'mousemove', scrapeCover);
-                flag = false;
-            }
+            removeEvent(opts.bindElement, moveEvt, scrapeCover);
         }
+
+        var log = document.getElementById('log');
 
         // 手指或鼠标滑动回调
         function scrapeCover(e) {
 
             // touchmove事件触发时，阻止触发页面滚动
+            e.preventDefault();
             e.stopPropagation();
 
             var i,
@@ -164,15 +171,20 @@
 
             len = points.length;
             for (i = 0; i < len; i++) {
-                scrapeX = points[i].clientX + scrollX() - pageX(this);
-                scrapeY = points[i].clientY + scrollY() - pageY(this);
+                scrapeX = points[i].clientX + scrollX() - pageX(canvas);
+                scrapeY = points[i].clientY + scrollY() - pageY(canvas);
+
 
                 // 清除手指或鼠标位置处的覆盖层
                 ctx1.save();
+                ctx1.globalCompositeOperation = 'destination-out';
                 ctx1.beginPath();
                 ctx1.arc(scrapeX, scrapeY, pointRadius, 0, Math.PI * 2);
-                ctx1.clip();
-                ctx1.clearRect(scrapeX - pointRadius, scrapeY - pointRadius, pointRadius * 2, pointRadius * 2);
+                ctx1.fill();
+
+                // 若采用下面两行代码的方式清除圆形画布层，在G18/Android4.0.3自带浏览器中不起作用
+                // ctx1.clip();
+                // ctx1.clearRect(0, 0, opts.width, opts.height);
                 ctx1.restore();
 
                 if (scrapeX >= prizeArea[0] && 
@@ -182,23 +194,14 @@
 
                     // 触发结果回调
                     opts.onresult();
+
+                    // 标记已经被刮开
+                    scraped = true;
                 }
             }
         }
 
-        if (isTouch) {
-            addEvent(canvas, moveEvt, scrapeCover);
-        }
     };
-
-    // 绑定上下文
-    function proxy(fn, o) {
-        if (typeof fn === 'function') {
-            return function() {
-                fn.call(o);
-            };
-        }
-    }
     
     // 合并两个对象
     function mergeOpts(opts1, opts2) {
