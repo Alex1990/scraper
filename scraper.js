@@ -125,8 +125,7 @@
             ctx.closePath();
         }
 
-        // 标记是否被刮过，用来避免opts.onscrape一直触发
-        var scraped = false;
+
 
         // 绑定鼠标按下或手指触摸时的回调函数
         addEvent(opts.bindElement, startEvt, startScrape);
@@ -136,9 +135,6 @@
 
         // 鼠标按下或手指触摸回调函数
         function startScrape(e) {
-            if (!scraped) {
-                opts.onscrape.call(opts);
-            }
             addEvent(opts.bindElement, moveEvt, scrapeCover);
         }
 
@@ -147,10 +143,24 @@
             removeEvent(opts.bindElement, moveEvt, scrapeCover);
         }
 
-        var log = document.getElementById('log');
+        // IE6-8 flashcanvas所需的object元素
+        var flashObject = canvas.getElementsByTagName('object')[0];
+
+        // 标记是否被刮过，用来避免opts.onscrape一直触发
+        var scraped = false;
 
         // 手指或鼠标滑动回调
         function scrapeCover(e) {
+
+            // 触点不在画布上滑动时返回
+            if ((e.target !== canvas && typeof flashObject === 'undefined') || 
+                    (typeof flashObject !== 'undefined' && e.target !== flashObject)) {
+                return ;
+            }
+
+            if (!scraped) {
+                opts.onscrape.call(opts);
+            }
 
             // touchmove事件触发时，阻止触发页面滚动
             e.preventDefault();
