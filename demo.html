@@ -74,13 +74,11 @@
             div.style.position = 'absolute';
             div.style.top = scrollY() + 'px';
             div.style.width = '100%';
-            div.style.padding = '10px';
             div.style.backgroundColor = '#83a';
 
             span.style.display = 'block';
             span.style.margin = '0 auto';
-            span.style.width = '100%';
-            span.style.maxWidth = '100%';
+            span.style.padding = '10px';
             span.style.color = '#fff';
 
             div.appendChild(span);
@@ -106,7 +104,7 @@
         onscrape: function() {
             var res = document.getElementById('result');
             res.innerHTML = '二等奖';
-            sendMsg('开始刮');
+            sendMsg('开始刮(此时开始发送请求，处理数据)');
         },
         onresult: function() {
             sendMsg('显示结果');
