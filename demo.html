@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>scraper demo</title>
+    <!--[if lte IE 8]>
+    <script src="flashcanvas/flashcanvas.js"></script>
+    <![endif]-->
+    <style>
+        body {
+            margin: 0;
+            font-family: Helvetica, Arial, Microsoft Yahei, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 {
+            margin-top: 50px;
+            text-align: center;
+        }
+        .card-wrap {
+            margin-left: auto;
+            margin-right: auto;
+            width: 200px;
+            background-color: #f50;
+            position: relative;
+        }
+        #result {
+            width: 200px;
+            height: 50px;
+            padding-top: 10px;
+            font-size: 24px;
+            text-align: center;
+            color: #333;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        #scraper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <h1>Scraper Demo</h1>
+        <div class="card-wrap">
+        <div id="result"></div>
+        <canvas id="scraper" width="200" height="60"></canvas>
+    </div>
+    <div id="log"></div>
+    <script src="scraper.js"></script>
+    <script>
+    // 弹出框
+    var sendMsg = (function() {
+        var div = document.createElement('div'),
+            span = document.createElement('span');
+
+        function scrollY() {
+            return window.pageYOffset || document.documentElement.scrollTop
+                    || document.body.scrollTop;
+        }
+
+        return function sendMsg(o) {
+
+            span.innerHTML = o.constructor === Number ? 
+                            o : o.toString();
+
+            div.style.position = 'absolute';
+            div.style.top = scrollY() + 'px';
+            div.style.width = '100%';
+            div.style.padding = '10px';
+            div.style.backgroundColor = '#83a';
+
+            span.style.display = 'block';
+            span.style.margin = '0 auto';
+            span.style.width = '100%';
+            span.style.maxWidth = '100%';
+            span.style.color = '#fff';
+
+            div.appendChild(span);
+            document.body.appendChild(div);
+
+            setTimeout(function() {
+                    div.parentNode && div.parentNode.removeChild(div);
+            }, 500000);
+        }
+    })();
+
+    var canvas = document.getElementById('scraper');
+
+    // IE6-8需要FlashCanvas
+    if (typeof FlashCanvas !== 'undefined') {
+        FlashCanvas.initElement(canvas);
+    }
+
+    // 配置scraper
+    scraper(canvas, {
+        coverText: ['刮奖区', 40, 40],
+        prizeArea: [70, 25, 20, 20],
+        onscrape: function() {
+            var res = document.getElementById('result');
+            res.innerHTML = '二等奖';
+            sendMsg('开始刮');
+        },
+        onresult: function() {
+            sendMsg('显示结果');
+        }
+    });
+    </script>
+</body>
+</html>

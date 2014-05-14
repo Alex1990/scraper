@@ -130,9 +130,9 @@ scraper(document.getElementById('scraper'), {
     }
 });
 &lt;/script&gt;</code></pre>
-                <p><strong>DEMO如下</strong></p>
+                <p><strong>DEMO如下</strong> <a href="demo.html">单独页</a></p>
                 <div class="card-wrap">
-                    <div id="result">二等奖</div>
+                    <div id="result"></div>
                     <canvas id="scraper" width="200" height="60"></canvas>
                 </div>
             </div>
@@ -140,6 +140,7 @@ scraper(document.getElementById('scraper'), {
                 <h2>Config Options</h2>
                 <p>也许常用的配置项为：coverBgColor, prizeArea, onscrape, onresult 。</p>
                 <ul>
+                    <li><strong>bindElement</strong> Element <em>(default:document)</em> - 事件代理对象</li>
                     <li><strong>coverText</strong> Array <em>(default:['', 0, 0])</em> - 数组三个值依次代表：覆盖层上显示文字、文字横坐标，文字纵坐标(从文字左下角至canvas左上角)</li>
                     <li><strong>coverColor</strong> String <em>(default:'#333')</em> - 覆盖层文字颜色值</li>
                     <li><strong>coverFont</strong> String <em>(default:'16px Arial, sans-serif')</em> - 覆盖层文字格式，与CSS的font属性值一样格式</li>
@@ -175,21 +176,25 @@ scraper(document.getElementById('scraper'), {
         var div = document.createElement('div'),
             span = document.createElement('span');
 
+        function scrollY() {
+            return window.pageYOffset || document.documentElement.scrollTop
+                    || document.body.scrollTop;
+        }
         return function sendMsg(o) {
 
             span.innerHTML = o.constructor === Number ? 
                             o : o.toString();
 
-            div.style.position = 'fixed';
-            div.style.top = '10px';
+            div.style.position = 'absolute';
+            div.style.top = scrollY() + 'px';
             div.style.width = '100%';
+            div.style.padding = '10px';
+            div.style.backgroundColor = '#83a';
 
             span.style.display = 'block';
             span.style.margin = '0 auto';
-            span.style.width = '400px';
+            span.style.width = '100%';
             span.style.maxWidth = '100%';
-            span.style.padding = '.5em';
-            span.style.backgroundColor = '#f50';
             span.style.color = '#fff';
 
             div.appendChild(span);
@@ -212,6 +217,8 @@ scraper(document.getElementById('scraper'), {
     scraper(canvas, {
         prizeArea: [70, 25, 20, 20],
         onscrape: function() {
+            var res = document.getElementById('result');
+            res.innerHTML = '二等奖';
             sendMsg('开始刮');
         },
         onresult: function() {
