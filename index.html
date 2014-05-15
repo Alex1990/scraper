@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimium-scale=1.0, maximium-scale=1.0">
     <title>scraper - online scratch card</title>
     <!--[if lte IE 8]>
     <script src="flashcanvas/flashcanvas.js"></script>
@@ -56,6 +56,10 @@
             width: 200px;
             background-color: #f50;
             position: relative;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
         }
         #result {
             width: 200px;
@@ -140,7 +144,7 @@ scraper(document.getElementById('scraper'), {
                 <h2>Config Options</h2>
                 <p>也许常用的配置项为：coverBgColor, prizeArea, onscrape, onresult 。</p>
                 <ul>
-                    <li><strong>bindElement</strong> Element <em>(default:document)</em> - 事件代理对象</li>
+                    <li><strong>bindElement</strong> Element <em>(default:canvas)</em> - 事件代理对象</li>
                     <li><strong>coverText</strong> Array <em>(default:['', 0, 0])</em> - 数组三个值依次代表：覆盖层上显示文字、文字横坐标，文字纵坐标(从文字左下角至canvas左上角)</li>
                     <li><strong>coverColor</strong> String <em>(default:'#333')</em> - 覆盖层文字颜色值</li>
                     <li><strong>coverFont</strong> String <em>(default:'16px Arial, sans-serif')</em> - 覆盖层文字格式，与CSS的font属性值一样格式</li>
@@ -200,7 +204,7 @@ scraper(document.getElementById('scraper'), {
 
             setTimeout(function() {
                 div.parentNode && div.parentNode.removeChild(div);
-            }, 5000);
+            }, 30000);
         }
     })();
 

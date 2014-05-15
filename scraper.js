@@ -79,7 +79,7 @@
 
         // 默认配置
         var defaults = {
-            bindElement: document, // 事件代理对象
+            bindElement: canvas, // 事件代理对象
             coverText: ['', 0, 0], // 数组中三个值依次代表覆盖层显示文字、文字横坐标、文字纵坐标
             coverFont: '24px Arial, Microsoft Yahei, sans-serif', // 覆盖层文字格式
             coverColor: '#333', // 覆盖层文字颜色
@@ -128,10 +128,10 @@
 
 
         // 绑定鼠标按下或手指触摸时的回调函数
-        addEvent(opts.bindElement, startEvt, startScrape);
+        addEvent(document, startEvt, startScrape);
 
         // 绑定鼠标松开或手指离开屏幕时的回调函数
-        addEvent(opts.bindElement, endEvt, stopScrape);
+        addEvent(document, endEvt, stopScrape);
 
         // 鼠标按下或手指触摸回调函数
         function startScrape(e) {
@@ -143,8 +143,6 @@
             removeEvent(opts.bindElement, moveEvt, scrapeCover);
         }
 
-        // IE6-8 flashcanvas所需的object元素
-        var flashObject = canvas.getElementsByTagName('object')[0];
 
         // 标记是否被刮过，用来避免opts.onscrape一直触发
         var scraped = false;
@@ -152,19 +150,14 @@
         // 手指或鼠标滑动回调
         function scrapeCover(e) {
 
-            // 触点不在画布上滑动时返回
-            if ((e.target !== canvas && typeof flashObject === 'undefined') || 
-                    (typeof flashObject !== 'undefined' && e.target !== flashObject)) {
-                return ;
-            }
+            // touchmove事件触发时，阻止触发页面滚动
+            e.preventDefault();
+            e.stopPropagation();
 
             if (!scraped) {
                 opts.onscrape.call(opts);
             }
 
-            // touchmove事件触发时，阻止触发页面滚动
-            e.preventDefault();
-            e.stopPropagation();
 
             var i,
                 len,

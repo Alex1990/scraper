@@ -15,6 +15,12 @@
             line-height: 1.6;
             color: #333;
         }
+        .page {
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
         h1 {
             margin-top: 50px;
             text-align: center;
@@ -53,7 +59,6 @@
         <div id="result"></div>
         <canvas id="scraper" width="200" height="60"></canvas>
     </div>
-    <div id="log"></div>
     <script src="scraper.js"></script>
     <script>
     // 弹出框
@@ -86,7 +91,7 @@
 
             setTimeout(function() {
                 div.parentNode && div.parentNode.removeChild(div);
-            }, 5000);
+            }, 30000);
         }
     })();
 
