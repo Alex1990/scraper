@@ -29,7 +29,7 @@
             margin-left: auto;
             margin-right: auto;
             width: 200px;
-            background-color: #f50;
+            background-color: #eee;
             position: relative;
         }
         #result {
@@ -104,8 +104,10 @@
 
     // 配置scraper
     scraper(canvas, {
-        coverText: ['刮奖区', 40, 40],
+        coverText: ['刮奖区', 60, 40],
+        coverColor: '#0fd',
         prizeArea: [70, 25, 20, 20],
+        shape: 'img/texture.jpg',
         onscrape: function() {
             var res = document.getElementById('result');
             res.innerHTML = '二等奖';

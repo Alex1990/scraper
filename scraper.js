@@ -1,5 +1,5 @@
 /**
- * scraper - v0.9
+ * scraper - v0.95
  * The online form of scratch card
 
  * http://Alex1990.github.io/scraper
@@ -82,15 +82,15 @@
             bindElement: canvas, // 事件代理对象
             coverText: ['', 0, 0], // 数组中三个值依次代表覆盖层显示文字、文字横坐标、文字纵坐标
             coverFont: '24px Arial, Microsoft Yahei, sans-serif', // 覆盖层文字格式
-            coverColor: '#333', // 覆盖层文字颜色
+            coverColor: '#f00', // 覆盖层文字颜色
             coverBgColor: '#eee', // 覆盖层颜色
             pointRadius: 10, // 刮覆盖层时，触点半径
             prizeArea: [0, 0, 100, 40], // 结果(中奖)区域，矩形，参数依次为x, y, width, height
             shape: null, // 覆盖层形状图片，默认无图片，为矩形
             shapeX: 0, // 覆盖层形状图片左上角到canvas左上角水平距离
             shapeY: 0, // 覆盖层形状图片左上角到canvas左上角垂直距离
-            shapeW: null, // 覆盖层形状图片宽度
-            shapeH: null, // 覆盖层形状图片高度
+            shapeW: undefined, // 覆盖层形状图片宽度
+            shapeH: undefined, // 覆盖层形状图片高度
             onscrape: function() {}, // 开始刮时触发此事件
             onresult: function() {} // 刮到结果(中奖)区域时触发事件
         };
@@ -102,27 +102,33 @@
         opts.width = canvas.width;
         opts.height = canvas.height;
 
-        // 填充画布的覆盖层
         var ctx = canvas.getContext('2d');
+
+        // 填充画布的覆盖层
         if (!opts.shape) {
-            ctx.beginPath();
             ctx.fillStyle = opts.coverBgColor;
             ctx.rect(0, 0, opts.width, opts.height);
             ctx.fill();
-            ctx.closePath();
         } else {
-            var tmpImg = new Image();
+
+            // Chrome以前版本中，new Image()存在bug
+            var tmpImg = document.createElement('img');
+            tmpImg.onload = function() {
+                ctx.drawImage(tmpImg, opts.shapeX, opts.shapeY);
+
+                // 绘制文字于画布上
+                ctx.fillStyle = opts.coverColor;
+                ctx.font = opts.coverFont;
+                ctx.fillText(opts.coverText[0], opts.coverText[1] || 0, opts.coverText[2] || 0);
+            };
             tmpImg.src = opts.shape;
-            ctx.drawImage(tmpImg, opts.shapeX, opts.shapeY, opts.shapeW, opts.shapeH);
         }
 
         // 绘制文字于覆盖层上
-        if (opts.coverFont) {
-            ctx.beginPath();
+        if (!opts.shape && opts.coverFont) {
             ctx.fillStyle = opts.coverColor;
             ctx.font = opts.coverFont;
             ctx.fillText(opts.coverText[0], opts.coverText[1] || 0, opts.coverText[2] || 0);
-            ctx.closePath();
         }
 
 
@@ -143,7 +149,6 @@
             removeEvent(opts.bindElement, moveEvt, scrapeCover);
         }
 
-
         // 标记是否被刮过，用来避免opts.onscrape一直触发
         var scraped = false;
 
@@ -157,7 +162,6 @@
             if (!scraped) {
                 opts.onscrape.call(opts);
             }
-
 
             var i,
                 len,
@@ -176,7 +180,6 @@
             for (i = 0; i < len; i++) {
                 scrapeX = points[i].clientX + scrollX() - pageX(canvas);
                 scrapeY = points[i].clientY + scrollY() - pageY(canvas);
-
 
                 // 清除手指或鼠标位置处的覆盖层
                 ctx1.save();
